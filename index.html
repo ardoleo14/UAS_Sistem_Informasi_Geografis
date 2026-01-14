@@ -11,6 +11,7 @@
 html, body, #map {
     height: 100%;
     margin: 0;
+    padding: 0;
 }
 .header {
     position: absolute;
@@ -18,11 +19,11 @@ html, body, #map {
     left: 50%;
     transform: translateX(-50%);
     background: white;
-    padding: 8px 15px;
-    z-index: 1000;
+    padding: 8px 16px;
+    z-index: 2000;
     font-weight: bold;
     border-radius: 6px;
-    box-shadow: 0 0 5px rgba(0,0,0,.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
 </style>
 </head>
@@ -37,7 +38,7 @@ WebGIS Kesesuaian Lahan Permukiman Kabupaten Sidoarjo
 
 <script src="js/leaflet.js"></script>
 
-<!-- DATA -->
+<!-- ================= DATA ================= -->
 <script src="data/Kesesuaian_Permukiman_DISSOLVE_1.js"></script>
 <script src="data/Buffered_500M_Pendidikan_Sidoarjo_2.js"></script>
 <script src="data/Pendidikan_Sisoarjo_3.js"></script>
@@ -47,61 +48,115 @@ WebGIS Kesesuaian Lahan Permukiman Kabupaten Sidoarjo
 <script src="data/Buffered_50M_Sidoarjo_RAWAN_Tinggi_7.js"></script>
 <script src="data/Sungai_8.js"></script>
 <script src="data/Garis_Pantai_Sidoarjo_9.js"></script>
+<script src="data/WADUK_Sidoarjo_10.js"></script>
+<script src="data/RumahSakit_sidoarjo_11.js"></script>
+<script src="data/Terminal_sidoarjo_12.js"></script>
+<script src="data/industrial_sidoarjo_13.js"></script>
+<script src="data/Stasiun_sidoarjo_14.js"></script>
+<script src="data/SaranaIbadah_sidoarjo_15.js"></script>
+<script src="data/Pasar_PusatPerdagangan_sidoarjo_16.js"></script>
 
 <script>
-// MAP
-var map = L.map('map').setView([-7.446, 112.718], 11);
+// ================= MAP =================
+var map = L.map('map').setView([-7.445, 112.720], 11);
 
-// BASEMAP
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// STYLE
-function styleFill(color){
+// ================= STYLE =================
+function polyStyle(color){
     return {
-        color: '#000',
+        color: '#333',
         weight: 1,
         fillColor: color,
-        fillOpacity: 0.7
+        fillOpacity: 0.75
     };
 }
 
-// LAYERS
-var kesesuaian = L.geoJSON(json_Kesesuaian_Permukiman_DISSOLVE_1, {
-    style: styleFill('#b7484b')
+function pointStyle(color){
+    return {
+        radius: 5,
+        fillColor: color,
+        color: '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 1
+    };
+}
+
+// ================= POLYGON LAYERS =================
+var kesesuaian = L.geoJSON(json_Kesesuaian_Permukiman_DISSOLVE_1,{
+    style: polyStyle('#b7484b')
 }).addTo(map);
 
-var bufferPendidikan = L.geoJSON(json_Buffered_500M_Pendidikan_Sidoarjo_2, {
-    style: styleFill('#ff9e17')
+var permukiman = L.geoJSON(json_Permukiman_Sidoarjo_4,{
+    style: polyStyle('#a47158')
 });
 
-var permukiman = L.geoJSON(json_Permukiman_Sidoarjo_4, {
-    style: styleFill('#a47158')
+var bufferPendidikan = L.geoJSON(json_Buffered_500M_Pendidikan_Sidoarjo_2,{
+    style: polyStyle('#ff9e17')
 });
 
-var rawanRendah = L.geoJSON(json_Buffered_200M_Sidoarjo_RAWAN_Rendah_5, {
-    style: styleFill('#f4ff4b')
+var rawanRendah = L.geoJSON(json_Buffered_200M_Sidoarjo_RAWAN_Rendah_5,{
+    style: polyStyle('#f4ff4b')
 });
 
-var rawanSedang = L.geoJSON(json_Buffered_100M_Sidoarjo_RAWAN_Sedang_6, {
-    style: styleFill('#ff9a00')
+var rawanSedang = L.geoJSON(json_Buffered_100M_Sidoarjo_RAWAN_Sedang_6,{
+    style: polyStyle('#ff9a00')
 });
 
-var rawanTinggi = L.geoJSON(json_Buffered_50M_Sidoarjo_RAWAN_Tinggi_7, {
-    style: styleFill('#e31a1c')
+var rawanTinggi = L.geoJSON(json_Buffered_50M_Sidoarjo_RAWAN_Tinggi_7,{
+    style: polyStyle('#e31a1c')
 });
 
-var sungai = L.geoJSON(json_Sungai_8, {
-    style: { color:'#3b82f6', weight:2 }
+var waduk = L.geoJSON(json_WADUK_Sidoarjo_10,{
+    style: polyStyle('#4ade80')
 });
 
-var pantai = L.geoJSON(json_Garis_Pantai_Sidoarjo_9, {
-    style: { color:'#22c55e', weight:2 }
+var sungai = L.geoJSON(json_Sungai_8,{
+    style:{ color:'#2563eb', weight:2 }
 });
 
-// CONTROL
+var pantai = L.geoJSON(json_Garis_Pantai_Sidoarjo_9,{
+    style:{ color:'#16a34a', weight:2 }
+});
+
+// ================= POINT LAYERS (Z-INDEX TINGGI) =================
+var pendidikan = L.geoJSON(json_Pendidikan_Sisoarjo_3,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#7c3aed'))
+}).addTo(map);
+
+var rumahSakit = L.geoJSON(json_RumahSakit_sidoarjo_11,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#dc2626'))
+}).addTo(map);
+
+var terminal = L.geoJSON(json_Terminal_sidoarjo_12,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#475569'))
+}).addTo(map);
+
+var stasiun = L.geoJSON(json_Stasiun_sidoarjo_14,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#f97316'))
+}).addTo(map);
+
+var ibadah = L.geoJSON(json_SaranaIbadah_sidoarjo_15,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#0f766e'))
+}).addTo(map);
+
+var pasar = L.geoJSON(json_Pasar_PusatPerdagangan_sidoarjo_16,{
+    pointToLayer:(f,latlng)=>L.circleMarker(latlng, pointStyle('#eab308'))
+}).addTo(map);
+
+// pastikan point selalu di atas
+pendidikan.bringToFront();
+rumahSakit.bringToFront();
+terminal.bringToFront();
+stasiun.bringToFront();
+ibadah.bringToFront();
+pasar.bringToFront();
+
+// ================= LAYER CONTROL =================
 var overlays = {
     "Kesesuaian Permukiman": kesesuaian,
     "Permukiman": permukiman,
@@ -109,11 +164,18 @@ var overlays = {
     "Rawan Banjir Rendah": rawanRendah,
     "Rawan Banjir Sedang": rawanSedang,
     "Rawan Banjir Tinggi": rawanTinggi,
+    "Waduk": waduk,
     "Sungai": sungai,
-    "Garis Pantai": pantai
+    "Garis Pantai": pantai,
+    "Pendidikan": pendidikan,
+    "Rumah Sakit": rumahSakit,
+    "Terminal": terminal,
+    "Stasiun": stasiun,
+    "Sarana Ibadah": ibadah,
+    "Pasar": pasar
 };
 
-L.control.layers(null, overlays, { collapsed:false }).addTo(map);
+L.control.layers(null, overlays, {collapsed:false}).addTo(map);
 </script>
 
 </body>
